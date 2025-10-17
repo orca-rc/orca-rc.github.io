@@ -1,0 +1,889 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Exploring Conditions for Diffusion Models in Robotic Control</title>
+
+    <!-- Favicon references -->
+    <link rel="icon" type="image/png" href="./images/logo.png">
+    <link rel="apple-touch-icon" href="./images/logo.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <meta
+        content="Exploring Conditions for Diffusion Models in Robotic Control"
+        name="description" />
+    <meta
+        content="Exploring Conditions for Diffusion Models in Robotic Control"
+        property="og:title" />
+    <meta
+        content="Exploring Conditions for Diffusion Models in Robotic Control"
+        property="og:description" />
+    <meta
+        content="Exploring Conditions for Diffusion Models in Robotic Control"
+        property="twitter:title" />
+    <meta
+        content="Exploring Conditions for Diffusion Models in Robotic Control"
+        property="twitter:description" />
+    <meta property="og:type" content="website" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+        crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Varela+Round&display=swap"
+        rel="stylesheet">
+    <link href="style.css?" rel="stylesheet" type="text/css" />
+
+    <!-- 🔎 Added minimal CSS for click‑to‑zoom lightbox -->
+    <style>
+      /* make images clearly zoomable */
+      img.zoomable { cursor: zoom-in; transition: transform .2s ease; }
+
+      /* fullscreen overlay */
+      .lightbox-overlay {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(0,0,0,.9); z-index: 10000;
+      }
+      .lightbox-overlay.active { display: flex; }
+      .lightbox-overlay img { max-width: 95vw; max-height: 95vh; box-shadow: 0 10px 40px rgba(0,0,0,.6); border-radius: 8px; }
+      /* show zoom-out cursor while overlay is open */
+      .lightbox-overlay, .lightbox-overlay * { cursor: zoom-out; }
+
+      /* prevent background scroll when overlay is open */
+      body.no-scroll { overflow: hidden; }
+    </style>
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <nav class="main-nav">
+                <ul class="nav-links">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#motivation">Motivation</a></li>
+                    <li><a href="#method">Methodology</a></li>
+                    <li><a href="#results">Results</a></li>
+                    <li><a href="#analysis">Analysis</a></li>
+                    <li><a href="#qual">Qualitative Results</a></li>
+                    <li><a href="#citation">Citation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="title-row">
+                <div class="title-flex">
+                    <!-- <video class="title-video" autoplay muted loop playsinline>
+                        <source src="images/moving_matrix2.mp4" type="video/mp4">
+                    </video> -->
+                   
+                    <div class="title-text-block">
+                        <h1 class="title"><span class="gradient-text">Orca</span>: Exploring Conditions<span class="title-break"></span> for Diffusion Models in Robotic Control</h1>
+                        <h1 class="subtitle">arXiv 2025</h1>
+                    </div>
+                </div>
+            </div>
+            <!-- Author Information -->
+            <div class="base-row author-row">
+                <div class="base-col author-col">
+                    <a href= "https://hsshin98.github.io/" target ="_blank" class="author-text">
+                        Heeseong Shin<sup>1</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://sites.google.com/view/byeongho-heo/home" target="_blank" class="author-text">
+                        Byeongho Heo<sup>2</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://sites.google.com/site/dyhan0920/" target="_blank" class="author-text">
+                        Dongyoon Han<sup>2</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://cvlab.kaist.ac.kr/members/faculty" target="_blank" class="author-text">
+                        Seungryong Kim
+                        <sup>1&dagger;</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://scholar.google.com/citations?user=u-9bdkwAAAAJ&hl=en" target="_blank" class="author-text">
+                        Taekyung Kim<sup>2&dagger;</sup>
+                    </a>
+                </div>
+                
+            </div>
+            
+            <!-- Author Affiliations -->
+            <div class="base-row author-row">
+                <div class="base-col author-col affiliations">
+                    <sup>1</sup>KAIST AI &nbsp;&nbsp; <sup>2</sup>NAVER AI Lab &nbsp;&nbsp; <sup>&dagger;</sup>Corresponding authors &nbsp;&nbsp; 
+                    <br>
+                </div>
+            </div>
+            <!-- Links -->
+            <div class="link-labels base-row"> 
+                <div class="base-col icon-col"><a href="https://arxiv.org/abs/" target="_blank"
+                        class="link-block">
+                        <i class="fa fas fa-file-text main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Paper</strong>
+                    </a></div>
+                <div class="base-col icon-col"><a href='https://github.com/' class="link-block">
+                        <i class="fa fa-github main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Code</strong>
+                    </a></div>
+                <div class="base-col icon-col"><a href="#citation" class="link-block">
+                        <i class="fa fa-graduation-cap main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Citation</strong>
+                    </a></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Contents: overview -->
+            
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+            
+
+                <div class="image-container">
+                    <div class="image-content">
+                        <img src="images/teaser.png" class="img large-image" alt="teaser">
+                    </div>
+                </div>
+                <br>
+                <div class="tldr">
+                    <b>TL;DR</b>: How can we condition diffusion models for robotic control tasks? We explore ways to effectively condition diffusion models and present Orca for learning task-adaptive conditions in control tasks. 
+                </div>
+
+            </section>
+
+            <!-- Contents: Motivation -->
+            <div id="motivation" class="base-row section">
+                <h2>Motivation</h2>
+            </div>
+            
+            <div class="image-container">
+                <div class="image-content">
+                    <img src="images/motivation.png" class="img large-image" alt="motivation">
+                </div>
+            </div>
+            <p class="paragraph">
+                    Conditional diffusion models, such as Stable Diffusion, are capable of genereting visual representation with regard to the given condition. 
+                    Can we leverage such capability of diffusion models for robotic control tasks to overcome the previous limitations of <b>task-agnostic</b> representations in previous approaches and achieve better performance in various control tasks in a <b>task-adaptive</b> manner?
+            </p>
+
+            <h3>Exploring textual conditions for robotic control</h3>
+            <div class="image-container">
+                <div class="image-content">
+                    <img src="images/case.png" class="img large-image" alt="teaser">
+                </div>
+            </div>
+            <p class="paragraph">
+                    Text conditions, such as image captions or task descriptions, were shown to be effective in various downstream visual tasks. However, we find that the same does not apply for robotic control tasks.
+                    We hypothesize that this is due to the noisy grounding in cross-attention maps, originating from the domain gap between real-world images that diffusion models were trained on and the simulated robotic environments.
+                    Moreover, text conditions fall short in providing detailed information about the current scene as it neglects the visual information, which is crucial for robotic control.
+                </p>
+            
+            <!-- Contents: Method -->
+            <section id="method" class="section">
+                <h2>Methodology</h2>
+                <div class="image-container">
+                    <div class="image-content">
+                        <img src="images/method.png" class="img large-image" alt="method">
+                    </div>
+                    <p class="image-caption">  <strong>Task prompts</strong> are shared across scenes in a single task, and aims to act as an implicit description for representing the task and the environment context.
+                    <br><strong>Visual Prompts</strong> aim to capture dynamic frame-specific details for accurate control through leveraging dense representations from a pre-trained visual encoder.</p>
+                </div>
+                <p class="paragraph">
+                    We design our conditions to adapt to the control environment, preventing erroneous grounding, while simultaneously incorporating visual information to capture dynamic details. 
+                    To achieve this with minimal overhead, we formulate these conditions as learnable prompts, which can be optimized during downstream policy learning.
+                </p>
+            </section>
+
+            <!-- Contents: Results -->
+            <section id="results" class="section">
+                <h2>Results</h2>
+                <!-- <h2>Results</h2> -->
+                <h3>DeepMind Control</h3>     
+                
+            <div class="table-container">
+            <div class="table-wrap">
+                <table class="advantages-table">
+                <thead>
+                    <tr>
+                    <th class="left">Methods</th>
+                    <th class="left-border">Backbone</th>
+                    <th class="left-border">Walker-stand</th>
+                    <th>Walker-walk</th>
+                    <th>Reacher-easy</th>
+                    <th>Cheetah-run</th>
+                    <th>Finger-spin</th>
+                    <th class="left-border">Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class="left">CLIP</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">87.3 &plusmn; 2.4</td>
+                    <td>58.3 &plusmn; 4.4</td>
+                    <td>54.5 &plusmn; 4.6</td>
+                    <td>29.9 &plusmn; 5.6</td>
+                    <td>67.5 &plusmn; 2.1</td>
+                    <td class="left-border">59.5</td>
+                    </tr>
+                    <tr>
+                    <td class="left">VC-1</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">86.1 &plusmn; 0.9</td>
+                    <td>54.3 &plusmn; 6.6</td>
+                    <td>18.3 &plusmn; 2.4</td>
+                    <td>40.9 &plusmn; 2.7</td>
+                    <td>65.7 &plusmn; 1.1</td>
+                    <td class="left-border">53.1</td>
+                    </tr>
+                    <tr>
+                    <td class="left">SCR</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">85.5 &plusmn; 2.6</td>
+                    <td>64.3 &plusmn; 3.5</td>
+                    <td>81.8 &plusmn; 9.9</td>
+                    <td>43.4 &plusmn; 6.4</td>
+                    <td>66.6 &plusmn; 2.7</td>
+                    <td class="left-border">68.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Simple)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">87.6 &plusmn; 4.6</td>
+                    <td>67.9 &plusmn; 4.6</td>
+                    <td>84.3 &plusmn; 4.6</td>
+                    <td>38.8 &plusmn; 5.9</td>
+                    <td>66.7 &plusmn; 0.2</td>
+                    <td class="left-border">69.1</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Caption)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">87.2 &plusmn; 4.5</td>
+                    <td>68.3 &plusmn; 5.9</td>
+                    <td>86.2 &plusmn; 1.9</td>
+                    <td>37.5 &plusmn; 2.6</td>
+                    <td>65.1 &plusmn; 1.8</td>
+                    <td class="left-border">68.9</td>
+                    </tr>
+                    <tr>
+                    <td class="left">CoOp</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">87.2 &plusmn; 2.2</td>
+                    <td>67.8 &plusmn; 6.4</td>
+                    <td>87.1 &plusmn; 5.9</td>
+                    <td>45.0 &plusmn; 6.4</td>
+                    <td>65.9 &plusmn; 1.0</td>
+                    <td class="left-border">70.6</td>
+                    </tr>
+                    <tr>
+                    <td class="left">TADP</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">89.0 &plusmn; 2.9</td>
+                    <td>69.9 &plusmn; 7.9</td>
+                    <td>86.6 &plusmn; 5.6</td>
+                    <td>41.1 &plusmn; 3.9</td>
+                    <td>66.9 &plusmn; 0.2</td>
+                    <td class="left-border">70.7</td>
+                    </tr>
+                    <tr class="ours">
+                    <td class="left first"><strong>ORCA (Ours)</strong></td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="first left-border"><strong>89.1</strong> &plusmn; 1.8</td>
+                    <td class="first"><strong>76.9</strong> &plusmn; 4.0</td>
+                    <td class="first"><strong>87.6</strong> &plusmn; 2.9</td>
+                    <td class="first"><strong>50.0</strong> &plusmn; 8.4</td>
+                    <td class="first"><strong>68.0</strong> &plusmn; 1.0</td>
+                    <td class="first left-border"><strong>74.3</strong></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <h3>MetaWorld</h3>
+            
+    
+
+            <div class="table-container">
+            <div class="table-wrap">
+                <table class="advantages-table">
+                <thead>
+                    <tr>
+                    <th class="left">Methods</th>
+                    <th class="left-border">Backbone</th>
+                    <th class="left-border">Assembly</th>
+                    <th>Bin-picking</th>
+                    <th>Button-press</th>
+                    <th>Drawer-open</th>
+                    <th>Hammer</th>
+                    <th class="left-border">Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class="left">CLIP</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">85.3 &plusmn; 12.2</td>
+                    <td>69.3 &plusmn; 8.3</td>
+                    <td>60.0 &plusmn; 13.9</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td>92.0 &plusmn; 8.0</td>
+                    <td class="left-border">81.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">VC-1</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">93.3 &plusmn; 6.1</td>
+                    <td>61.3 &plusmn; 12.2</td>
+                    <td>73.3 &plusmn; 8.3</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td>93.3 &plusmn; 6.1</td>
+                    <td class="left-border">84.2</td>
+                    </tr>
+                    <tr>
+                    <td class="left">SCR</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">92.0 &plusmn; 6.9</td>
+                    <td>86.7 &plusmn; 4.6</td>
+                    <td>74.7 &plusmn; 12.9</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td><strong>98.7</strong> &plusmn; 2.3</td>
+                    <td class="left-border">90.4</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Simple)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">97.3 &plusmn; 2.3</td>
+                    <td>85.3 &plusmn; 2.3</td>
+                    <td>78.7 &plusmn; 2.3</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td>96.0 &plusmn; 6.9</td>
+                    <td class="left-border">91.5</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Caption)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">96.0 &plusmn; 4.0</td>
+                    <td>88.0 &plusmn; 6.9</td>
+                    <td>80.0 &plusmn; 8.0</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td><strong>98.7</strong> &plusmn; 2.3</td>
+                    <td class="left-border">92.5</td>
+                    </tr>
+                    <tr>
+                    <td class="left">CoOp</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">96.0 &plusmn; 4.0</td>
+                    <td>89.3 &plusmn; 2.3</td>
+                    <td>81.3 &plusmn; 6.1</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td>96.0 &plusmn; 6.9</td>
+                    <td class="left-border">92.5</td>
+                    </tr>
+                    <tr>
+                    <td class="left">TADP</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">96.0 &plusmn; 4.0</td>
+                    <td><strong>90.7</strong> &plusmn; 4.6</td>
+                    <td>80.0 &plusmn; 10.6</td>
+                    <td><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td>96.0 &plusmn; 4.0</td>
+                    <td class="left-border">93.1</td>
+                    </tr>
+                    <tr class="ours">
+                    <td class="left first"><strong>ORCA (Ours)</strong></td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="first left-border"><strong>98.7</strong> &plusmn; 2.3</td>
+                    <td class="first"><strong>90.7</strong> &plusmn; 4.6</td>
+                    <td class="first"><strong>88.0</strong> &plusmn; 6.9</td>
+                    <td class="first"><strong>100.0</strong> &plusmn; 0.0</td>
+                    <td class="first"><strong>98.7</strong> &plusmn; 2.3</td>
+                    <td class="first left-border"><strong>95.2</strong></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <h3>Adroit</h3>
+
+            <div class="table-container">
+            <div class="table-wrap">
+                <table class="advantages-table">
+                <thead>
+                    <tr>
+                    <th class="left">Methods</th>
+                    <th class="left-border">Backbone</th>
+                    <th class="left-border">Pen</th>
+                    <th>Relocate</th>
+                    <th class="left-border">Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class="left">CLIP</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">58.7 &plusmn; 2.3</td>
+                    <td><strong>44.0</strong> &plusmn; 4.0</td>
+                    <td class="left-border">51.4</td>
+                    </tr>
+                    <tr>
+                    <td class="left">VC-1</td>
+                    <td class="left-border">ViT-L/16</td>
+                    <td class="left-border">65.3 &plusmn; 16.7</td>
+                    <td>29.3 &plusmn; 8.3</td>
+                    <td class="left-border">47.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">SCR&dagger;</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">84.0 &plusmn; 4.0</td>
+                    <td>32.0 &plusmn; 4.0</td>
+                    <td class="left-border">58.0</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Simple)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">80.0 &plusmn; 6.9</td>
+                    <td>34.7 &plusmn; 6.1</td>
+                    <td class="left-border">57.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">Text (Caption)</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">80.0 &plusmn; 4.0</td>
+                    <td>34.7 &plusmn; 4.6</td>
+                    <td class="left-border">57.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">CoOp</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">82.7 &plusmn; 6.1</td>
+                    <td>33.3 &plusmn; 6.1</td>
+                    <td class="left-border">58.0</td>
+                    </tr>
+                    <tr>
+                    <td class="left">TADP</td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="left-border">81.3 &plusmn; 6.1</td>
+                    <td>33.3 &plusmn; 8.3</td>
+                    <td class="left-border">57.3</td>
+                    </tr>
+                    <tr class="ours">
+                    <td class="left first"><strong>ORCA (Ours)</strong></td>
+                    <td class="left-border">SD 1.5</td>
+                    <td class="first left-border"><strong>86.7</strong> &plusmn; 2.3</td>
+                    <td class="first"><strong>44.0</strong> &plusmn; 4.0</td>
+                    <td class="first left-border"><strong>65.3</strong></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+            </section>
+
+        
+
+            <!-- Contents: Analysis -->
+            <section id="analysis" class="section">
+                <h2>Analysis</h2>
+
+                <h3>Ablation studies</h3>
+
+
+            <div class="table-container">
+            <div class="table-wrap">
+                <table class="advantages-table">
+                <thead>
+                    <tr>
+                    <th colspan="2" class="left">Components</th>
+                    <th colspan="6" class="left-border">DeepMind Control</th>
+                    </tr>
+                    <tr>
+                    <th class="left"><i>p<sub>t</sub></i></th>
+                    <th><i>p<sub>v</sub></i></th>
+                    <th class="left-border">Walker-stand</th>
+                    <th>Walker-walk</th>
+                    <th>Reacher-easy</th>
+                    <th>Cheetah-run</th>
+                    <th>Finger-spin</th>
+                    <th class="left-border">Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class="left"></td>
+                    <td></td>
+                    <td class="left-border">85.5 &plusmn; 2.6</td>
+                    <td>64.3 &plusmn; 3.5</td>
+                    <td>81.8 &plusmn; 1.7</td>
+                    <td>43.4 &plusmn; 4.4</td>
+                    <td>66.6 &plusmn; 2.7</td>
+                    <td class="left-border">68.3</td>
+                    </tr>
+                    <tr>
+                    <td class="left">&check;</td>
+                    <td></td>
+                    <td class="left-border">83.6 &plusmn; 3.2</td>
+                    <td>71.4 &plusmn; 3.5</td>
+                    <td>86.7 &plusmn; 6.6</td>
+                    <td>38.9 &plusmn; 10.1</td>
+                    <td><strong>68.2</strong> &plusmn; 1.2</td>
+                    <td class="left-border">69.8</td>
+                    </tr>
+                    <tr>
+                    <td class="left"></td>
+                    <td>&check;</td>
+                    <td class="left-border">85.9 &plusmn; 2.7</td>
+                    <td>71.1 &plusmn; 2.3</td>
+                    <td>87.3 &plusmn; 5.5</td>
+                    <td>42.0 &plusmn; 10.4</td>
+                    <td>66.1 &plusmn; 1.0</td>
+                    <td class="left-border">70.5</td>
+                    </tr>
+                    <tr class="ours">
+                    <td class="left first">&check;</td>
+                    <td class="first">&check;</td>
+                    <td class="first left-border"><strong>89.1</strong> &plusmn; 2.3</td>
+                    <td class="first"><strong>76.9</strong> &plusmn; 4.0</td>
+                    <td class="first"><strong>87.6</strong> &plusmn; 2.9</td>
+                    <td class="first"><strong>50.0</strong> &plusmn; 8.4</td>
+                    <td class="first">68.0 &plusmn; 1.0</td>
+                    <td class="first left-border"><strong>74.3</strong></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <p class="paragraph">
+                    The component analysis reveals that task prompts and visual prompts may have inconsistent performance when used individually, as different tasks benefit from each to varying degrees. However, combining both prompts yields consistent performance gains across all tasks, demonstrating that they are complementary.
+            </p>
+
+            <h3>Layer selection</h3>
+            <div class="table-container">
+            <div class="table-wrap">
+                <table class="advantages-table">
+                <thead>
+                    <tr>
+                    <th class="left">Layer</th>
+                    <th class="left-border">Walker-stand</th>
+                    <th>Walker-walk</th>
+                    <th>Reacher-easy</th>
+                    <th>Cheetah-run</th>
+                    <th>Finger-spin</th>
+                    <th class="left-border">Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class="left">down_1</td>
+                    <td class="left-border">86.3 &plusmn; 2.1</td>
+                    <td>65.5 &plusmn; 1.1</td>
+                    <td>82.1 &plusmn; 3.7</td>
+                    <td>40.8 &plusmn; 1.1</td>
+                    <td>67.6 &plusmn; 0.3</td>
+                    <td class="left-border">68.4</td>
+                    </tr>
+                    <tr>
+                    <td class="left">down_2</td>
+                    <td class="left-border"><strong>89.3</strong> &plusmn; 1.2</td>
+                    <td>68.3 &plusmn; 2.7</td>
+                    <td>70.0 &plusmn; 18.8</td>
+                    <td>31.2 &plusmn; 2.6</td>
+                    <td>67.0 &plusmn; 1.0</td>
+                    <td class="left-border">65.1</td>
+                    </tr>
+                    <tr>
+                    <td class="left">down_3</td>
+                    <td class="left-border">86.2 &plusmn; 4.3</td>
+                    <td>73.3 &plusmn; 3.9</td>
+                    <td>75.3 &plusmn; 8.1</td>
+                    <td>36.0 &plusmn; 4.8</td>
+                    <td>67.0 &plusmn; 0.5</td>
+                    <td class="left-border">67.5</td>
+                    </tr>
+                    <tr>
+                    <td class="left">mid</td>
+                    <td class="left-border">88.3 &plusmn; 4.9</td>
+                    <td>70.4 &plusmn; 1.3</td>
+                    <td>62.3 &plusmn; 1.1</td>
+                    <td>35.0 &plusmn; 4.7</td>
+                    <td>67.2 &plusmn; 0.6</td>
+                    <td class="left-border">64.6</td>
+                    </tr>
+                    <tr>
+                    <td class="left">up_0</td>
+                    <td class="left-border">82.8 &plusmn; 2.6</td>
+                    <td>71.7 &plusmn; 5.9</td>
+                    <td>45.3 &plusmn; 4.0</td>
+                    <td>28.5 &plusmn; 1.8</td>
+                    <td>67.2 &plusmn; 0.6</td>
+                    <td class="left-border">59.0</td>
+                    </tr>
+                    <tr>
+                    <td class="left">up_1</td>
+                    <td class="left-border">79.5 &plusmn; 4.5</td>
+                    <td>60.3 &plusmn; 16.1</td>
+                    <td>55.9 &plusmn; 5.2</td>
+                    <td>39.9 &plusmn; 7.0</td>
+                    <td>66.4 &plusmn; 0.4</td>
+                    <td class="left-border">60.4</td>
+                    </tr>
+                    <tr>
+                    <td class="left">up_2</td>
+                    <td class="left-border">70.4 &plusmn; 4.5</td>
+                    <td>39.1 &plusmn; 3.3</td>
+                    <td>41.0 &plusmn; 7.0</td>
+                    <td>30.9 &plusmn; 3.1</td>
+                    <td>67.7 &plusmn; 1.0</td>
+                    <td class="left-border">49.7</td>
+                    </tr>
+                    <tr class="ours top-border-row">
+                    <td class="left first">down_1-3, mid</td>
+                    <td class="first left-border"><strong>89.1</strong> &plusmn; 1.8</td>
+                    <td class="first"><strong>76.9</strong> &plusmn; 4.0</td>
+                    <td class="first"><strong>87.6</strong> &plusmn; 2.9</td>
+                    <td class="first"><strong>50.0</strong> &plusmn; 8.4</td>
+                    <td class="first"><strong>68.0</strong> &plusmn; 1.0</td>
+                    <td class="first left-border"><strong>74.3</strong></td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            </div>
+
+            <p class="paragraph">
+                    The layer-wise evaluation shows that features from the early downsampling and middle blocks of the diffusion U-Net consistently outperform those from the later upsampling layers. Therefore, we concatenate these top-performing early layers (down_1-3, mid), which achieves the best overall results and aligns with prior findings that early-layer representations are more effective for robotic control.
+            </p>
+                
+
+            <h3>Visualization of task and visual prompts</h3>
+                <div class="image-container">
+                    <div class="image-content">
+                        <img src="images/vis.png" class="img large-image" alt="teaser">
+                    </div>
+                </div>
+                <p class="paragraph">
+                    The cross-attention visualizations for the "Relocate" task show the task prompt consistently focuses on goal-relevant objects like the robot hand and target sphere. In contrast, the visual prompts behave dynamically, with one tracking the hand while the other learns to capture task-relevant motion by shifting its attention from the table to the hand as it moves.
+            </p>
+
+            </section>
+
+            <!-- Contents: Conclusion -->
+            <section id="qual" class="section">
+                <h2>Qualitative Results</h2>
+
+            <div class="slideshow-container">
+            <div class="slideshow">
+
+                <div class="video-slide active-slide">
+                    <div class="slide-video-wrapper">
+                        <div class="video-item-container"><h4 class="video-title">CLIP</h4>
+                        <video class="slideshow-video" src="videos/001.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">VC-1</h4>
+                        <video class="slideshow-video" src="videos/002.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">Ours</h4>
+                        <video class="slideshow-video" src="videos/003.mp4" autoplay loop muted playsinline></video></div>
+                    </div>
+                    <p class="slide-description">Cheetah-run (DeepMind Control)</p>
+                </div>
+
+            </div>
+            </div>
+
+            <div class="slideshow-container">
+            <div class="slideshow">
+
+                <div class="video-slide active-slide">
+                    <div class="slide-video-wrapper">
+                        <div class="video-item-container"><h4 class="video-title">CLIP</h4>
+                        <video class="slideshow-video" src="videos/004.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">VC-1</h4>
+                        <video class="slideshow-video" src="videos/005.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">Ours</h4>
+                        <video class="slideshow-video" src="videos/006.mp4" autoplay loop muted playsinline></video></div>
+                    </div>
+                    <p class="slide-description">Relocate (Adroit)</p>
+                </div>
+
+            </div>
+            </div>
+
+            <div class="slideshow-container">
+            <div class="slideshow">
+
+                <div class="video-slide active-slide">
+                    <div class="slide-video-wrapper">
+                        <div class="video-item-container"><h4 class="video-title">CLIP</h4>
+                        <video class="slideshow-video" src="videos/007.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">VC-1</h4>
+                        <video class="slideshow-video" src="videos/008.mp4" autoplay loop muted playsinline></video></div>
+                        <div class="video-item-container"><h4 class="video-title">Ours</h4>
+                        <video class="slideshow-video" src="videos/009.mp4" autoplay loop muted playsinline></video></div>
+                    </div>
+                </div>
+
+                <p class="slide-description">
+                    Assembly (MetaWorld)
+                </p>
+            </div>
+            </div>
+
+            </section>
+            <!-- Contents: Citation -->
+            <div class="citation add-top-padding">
+                <h1 id="citation">Citation</h1>
+                <p> If you use this work or find it helpful, please consider citing: </p>
+                <pre id="codecell0">
+            @misc{, 
+            }
+                </pre>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p class="credit">Credit: The design of this project page is inspired by previous academic project pages, such as <a href="https://llm-grounded-diffusion.github.io/" target="_blank">LLM-grounded Diffusion</a>, <a href="https://describe-anything.github.io/" target="_blank">Describe-anything</a> and <a href="https://cvlab-kaist.github.io/VIRAL" target="_blank">VIRAL</a> .</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- SLIDESHOW LOGIC ---
+        const slides = document.querySelectorAll('.video-slide');
+        const prevBtn = document.querySelector('.slideshow-nav.prev');
+        const nextBtn = document.querySelector('.slideshow-nav.next');
+        const playPauseBtn = document.querySelector('.play-pause');
+        
+        // Check if slideshow elements exist before running the code
+        if (slides.length > 0 && prevBtn && nextBtn && playPauseBtn) {
+            const playPauseIcon = playPauseBtn.querySelector('i');
+            let currentSlideIndex = 0;
+            let isAutoplaying = true;
+            let autoplayInterval;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active-slide', i === index);
+                });
+            }
+
+            function nextSlide() {
+                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                showSlide(currentSlideIndex);
+            }
+
+            function prevSlide() {
+                currentSlideIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
+                showSlide(currentSlideIndex);
+            }
+
+            function startAutoplay() {
+                clearInterval(autoplayInterval);
+                autoplayInterval = setInterval(nextSlide, 5000); // 5 seconds
+                playPauseBtn.setAttribute('aria-label', 'Pause autoplay');
+                if (playPauseIcon) {
+                    playPauseIcon.classList.remove('fa-play');
+                    playPauseIcon.classList.add('fa-pause');
+                }
+                isAutoplaying = true;
+            }
+
+            function stopAutoplay() {
+                clearInterval(autoplayInterval);
+                playPauseBtn.setAttribute('aria-label', 'Resume autoplay');
+                if (playPauseIcon) {
+                    playPauseIcon.classList.remove('fa-pause');
+                    playPauseIcon.classList.add('fa-play');
+                }
+                isAutoplaying = false;
+            }
+
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                if (isAutoplaying) startAutoplay(); // Reset timer
+            });
+
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                if (isAutoplaying) startAutoplay(); // Reset timer
+            });
+
+            playPauseBtn.addEventListener('click', () => {
+                if (isAutoplaying) {
+                    stopAutoplay();
+                } else {
+                    startAutoplay();
+                }
+            });
+
+            // Initialize
+            showSlide(currentSlideIndex);
+            startAutoplay();
+        }
+
+        // --- IMAGE LIGHTBOX LOGIC ---
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox-overlay';
+        lightbox.innerHTML = '<img alt="Expanded image">';
+        document.body.appendChild(lightbox);
+        const lightboxImg = lightbox.querySelector('img');
+
+        function openLightbox(src, alt) {
+            lightboxImg.src = src;
+            lightboxImg.alt = alt || '';
+            lightbox.classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        }
+
+        lightbox.addEventListener('click', closeLightbox);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        document.querySelectorAll('img.zoomable').forEach(img => {
+            img.addEventListener('click', () => {
+                const src = img.getAttribute('data-fullsrc') || img.src;
+                openLightbox(src, img.alt);
+            });
+        });
+    });
+    </script>
+</body>
+</html>
